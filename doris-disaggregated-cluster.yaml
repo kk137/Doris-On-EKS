@@ -1,0 +1,49 @@
+apiVersion: disaggregated.cluster.doris.com/v1
+kind: DorisDisaggregatedCluster
+metadata:
+  name: doris-disaggregated
+  namespace: doris
+spec:
+  # MetaService 配置 (连接 FDB)
+  metaService:
+    replicas: 3
+    image: apache/doris:ms-3.0.8
+    limits:
+      cpu: 2
+      memory: 4Gi
+    requests:
+      cpu: 1
+      memory: 2Gi
+    nodeSelector:
+      workload: doris
+    fdb:
+      configMapNamespaceName:
+        name: doris-fdb-config
+        namespace: default
+  
+  # FE 配置
+  feSpec:
+    replicas: 3
+    image: apache/doris:fe-3.0.8
+    limits:
+      cpu: 4
+      memory: 8Gi
+    requests:
+      cpu: 2
+      memory: 4Gi
+    nodeSelector:
+      workload: doris
+  
+  # Compute 组配置
+  computeGroups:
+    - uniqueId: cg1
+      replicas: 3
+      image: apache/doris:be-3.0.8
+      limits:
+        cpu: 8
+        memory: 16Gi
+      requests:
+        cpu: 4
+        memory: 8Gi
+      nodeSelector:
+        workload: doris
